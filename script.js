@@ -38,6 +38,8 @@ function getStem(entry, strLanguageCode) {
     switch (strLanguageCode) {
         case 'NEO.':
             return getStemNEO(entry);
+        case 'CAS.':
+            return getStemCAS(entry);
         default: return null;
     }
 }
@@ -103,6 +105,62 @@ function getStemNEO(entry) {
     return null;
 }
 
+
+function getStemCAS(entry) {
+    // Spanish
+    if ((entry['cat. gram.'] == 'v. tr.' ||
+        entry['cat. gram.'] == 'v.tr.' ||
+        entry['cat. gram.'] == 'v.intr.') &&
+        entry['CAS.'].length > 3) {
+        // remove -er -ar -ir
+        const areRE = /ar$/;
+        if (areRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(areRE, '');
+        }
+        const ereRE = /er$/;
+        if (ereRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(ereRE, '');
+        }
+        const ireRE = /ir$/;
+        if (ireRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(ireRE, '');
+        }
+    }
+    if ((entry['cat. gram.'] == 'v.pronom.intr.') &&
+        entry['CAS.'].length > 5) {
+        // remove -ere-se -are-se -ire-se
+        const areRE = /arse$/;
+        if (areRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(areRE, '');
+        }
+        const ereRE = /erse$/;
+        if (ereRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(ereRE, '');
+        }
+        const ireRE = /irse$/;
+        if (ireRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(ireRE, '');
+        }
+    }
+    if ((entry['cat. gram.'] == 'adj' || entry['cat. gram.'] == 's.m.' || entry['cat. gram.'] == 's.f.' || entry['cat. gram.'] == 's.m. et s.f.') &&
+        entry['CAS.'].length > 3) {
+        // remove o a e endings
+        const oRE = /o$/;
+        if (oRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(oRE, '');
+        }
+        const aRE = /a$/;
+        if (aRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(aRE, '');
+        }
+        const eRE = /e$/;
+        if (eRE.test(entry['CAS.'])) {
+            return entry['CAS.'].replace(eRE, '');
+        }
+    }
+    return null;
+}
+
 function TESTCompleteIndexLookup(word) {
     var indices = removeArrayDuplicates(advancedIndexLookup(word, indexNEO, 'NEO.'));
     var results = [];
@@ -132,6 +190,8 @@ function advancedIndexLookup(word, index, strLanguageCode) {
             results = results.concat(neoIndexLookup(word, index));
         case 'FRA.':
             results = results.concat(fraIndexLookup(word, index));
+        case 'CAS.':
+            results = results.concat(casIndexLookup(word, index));
     }
     return results;
 }
@@ -150,6 +210,7 @@ function neoIndexLookup(word, index) {
         /^re/, /^tele/, /^trans/, /^ultra/, /^circun/, /^super/, /^supra/,
         /^co/, /^co[nmlr]/,
         /^in/, /^i[nmlr]/,
+        /^en/, /^e[nmlr]/,
         /^de/, /^di/, /^dis/, /^des/,
         /^ex/, /^e[ptcbdgmnlrsfvzj]/,
         /^sub/, /^su[ptcbdgmnlrsfvzj]/,
@@ -167,6 +228,45 @@ function neoIndexLookup(word, index) {
     }
     return results;
 }
+
+
+function casIndexLookup(word, index) {
+    var results = [];
+    const potentialEndings = [/s$/, /es$/,
+        /[iea]?ción[e]?[s]?$/, /[iea]?miente[s]?$/, /[iea]?miento[s]?$/, /[iea]?ble[s]?$/, /[iea]?dad[e]?[s]?$/, /[iea]?l[e]?[s]?$/,
+        /[aei]r$/, /[oaei]$/, /[aei]s$/, / [áéí]s$ /, /[aei]n$/, /[ae]mos$/, /[áé]is$/, /ís$/,
+        /aba[s]?$/, /abamos$/, /ábamos$/, /abais$/, /aban$/,
+        /ía[s]?$/, /íamos$/, /íais$/, /ían$/,
+        /[éó]$/, /aste$/, /asteis$/, /aron$/,
+        /í$/, /iste$/, /imos$/, /isteis$/, /ieron$/,
+        /[aei]ré$/, /[aei]rá[s]?$/, /[aei]remos$/, /[aei]réis$/, /[aei]rán$/,
+        /[aei]ría[s]?$/, /[aei]ríamos$/, /[aei]ríais$/, /[aei]rían$/,
+        /[ai]do[s]?$/, /[ai]da[s]?$/, /[aei]nd[oa][s]?$/, /iend[oa][s]?$/, /yend[oa][s]?$/];
+
+    const potentialPrefixes = [/^anti/, /^pre/, /^pro/, /^post/, /^ambi/, /^ante/, /^contra/, /^mal/, /^mis/,
+        /^horti/, /^macro/, /^micro/, /^mono/, /^multi/, /^òmni/, /^omni/,
+        /^re/, /^tele/, /^trans/, /^tra/, /^ultra/, /^circun/, /^super/, /^sobre/, /^sobra/,
+        /^co/, /^com/,
+        /^in/, /^i/,
+        /^en/, /^e/,
+        /^de/, /^di/, /^dis/, /^des/,
+        /^es/,
+        /^sub/, /^su/,
+        /^a/, /^/];
+    for (const pre of potentialPrefixes) {
+        if (pre.test(word)) {
+            var wordPrefixRemoved = word.replace(pre, '');
+            for (const re of potentialEndings) {
+                if (re.test(wordPrefixRemoved)) {
+                    var potentialStem = wordPrefixRemoved.replace(re, '');
+                    results = results.concat(simpleIndexLookup(potentialStem, index));
+                }
+            }
+        }
+    }
+    return results;
+}
+
 
 
 function fraIndexLookup(word, index) {
