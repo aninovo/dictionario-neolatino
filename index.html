@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="la">
+<head>
+    <title>Neolatino, lo dictionario  albo</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="jquery.js"></script>
+    <script src="jquery.csv.min.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="gui.js"></script>
+    <link rel="stylesheet" type="text/css" href="reset.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="icon" type="image/svg" href="favicon.svg">
+</head>
+<body class="initial">
+    <header>
+        <div class="sub-header-text">
+            lo dictionario albo
+        </div>
+        <div class="header-text">
+            NEOLATINO
+        </div>
+        <form id="search-bar">
+            <input type="text" id="search-input" 
+                   placeholder="Cercare"/>
+            <button id="search-button" type="submit">
+                <img alt="Cercare" src="search.svg" />
+            </button>
+        </form>
+    </header>
+    <content id="contents">
+        <div class="info">
+            This is a lookup tool for a proposed interromance standard language known as NEOLATINO, 
+            it allows you to translate its words to Spanish, French, Portuguese, Italian, Romanian and English.
+            <br />
+            It performs some morphological analysis so it can recognize inflected and prefixed words. Try looking up "misinformatas".
+        </div>
+
+    </content>
+    <footer>
+        <div class="info">
+            <a href="https://neolatino.eu/">
+                sito officiale
+            </a>
+        </div>
+        <div class="info">
+            <a href="https://neolatino.github.io/dictionario/">
+                dictionario officiale (rosso)
+            </a>
+        </div>
+        <div class="info">
+            <a href="https://github.com/aninovo/dictionario-neolatino">
+                github repository
+            </a>
+        </div>
+    </footer>
+    <script>
+        $('form#search-bar').on('submit', function (e) { searchHandler(); $(".initial").removeClass("initial"); return false;/* to prevent submitting */ });
+    </script>
+</body>
+</html>
