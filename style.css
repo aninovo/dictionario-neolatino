@@ -36,7 +36,7 @@ body {
 
 header {
     display: flex;
-    width: 1280px;
+    width: auto;
     height: auto;
     flex-direction: column;
     justify-content: center;
