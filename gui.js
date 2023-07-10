@@ -36,7 +36,7 @@ function nothingFoundHTML() {
 
 function searchHandler() {
     // Stage 1 - get the word from inputs
-    var input = $('#search-input').val();
+    var input = $('#search-input').val().toLowerCase();
 
     // Stage 2 - look up numbers of entries in the index (TODO: language selection)
     var indexArray = [];
