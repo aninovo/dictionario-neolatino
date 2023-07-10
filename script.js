@@ -59,7 +59,12 @@ function getStemNEO(entry) {
         const ereRE = /ere$/;
         if (ereRE.test(entry['NEO.'])) {
             //results.push(entry['NEO.'].replace(ereRE, 'a'));
-            return entry['NEO.'].replace(ereRE, '');
+            // additional removal of é
+            var stem = entry['NEO.'].replace(ereRE, '');
+            var lioe = stem.lastIndexOf('é');
+            if (lioe > stem.length - 5)
+                stem[lioe] = 'e';
+            return stem;
         }   
         const ireRE = /ire$/;
         if (ireRE.test(entry['NEO.'])) {
@@ -78,7 +83,12 @@ function getStemNEO(entry) {
         const ereRE = /ere-se$/;
         if (ereRE.test(entry['NEO.'])) {
             //results.push(entry['NEO.'].replace(ereRE, 'a'));
-            return entry['NEO.'].replace(ereRE, '');
+            // additional removal of é
+            var stem = entry['NEO.'].replace(ereRE, '');
+            var lioe = stem.lastIndexOf('é');
+            if (lioe > stem.length - 5)
+                stem[lioe] = 'e';
+            return stem;
         }   
         const ireRE = /ire-se$/;
         if (ireRE.test(entry['NEO.'])) {
@@ -200,9 +210,11 @@ function neoIndexLookup(word, index) {
     var results = [];
     const potentialEndings = [/s$/, /es$/,
         /[iea]?sione[s]?$/, /[iea]?tione[s]?$/, /[iea]?mènte[s]?$/, /[iea]?mènto[s]?$/, /[iea]?bile[s]?$/, /[iea]?tate[s]?$/, /[iea]?le[s]?$/,
-        /[aei]re$/, /[oaei]$/, /[aei]t$/, /[aei]n$/, /[aei]nt$/, /[aei]s$/, /[ae]mos$/, /[ae]tes$/,
+        /[aei]re$/, /[oaei]$/, /[aei]t$/, /[aei]n$/, /[aei]nt$/, /[aei]s$/, /[ae]mos$/, /[ae]te[s]?$/,
         /[ae]va$/, /[ae]n$/, /[aei]vas$/, /[ae]vamos$/, /[ae]vates$/, /[ae]van$/, /[ae]vant$/,
         /[ae]i$/, /í$/, /[aei]iste$/, /[aei]mmos$/, /[aei]u$/, /[aei]stes$/, /[aei]ron$/,
+        /[aei]ra[oi]?$/, /[aei]ri$/, /[aei]rà[sn]?$/, /[aei]eremos$/, /[aei]eretes$/, 
+        /[aei]ría[sn]?$/, /[aei]río$/, /[aei]riamos$/, /[aei]riates$/,
         /[aui]to$/, /[aui]ta$/, /[aui]tos$/, /[aui]tas$/, /[aèi]ndo$/, /[aèi]nte$/, /[aèi]ntes$/];
 
     const potentialPrefixes = [/^anti/, /^pre/, /^pro/, /^post/, /^ambi/, /^ante/, /^contra/, /^mal/, /^mis/,
@@ -222,6 +234,19 @@ function neoIndexLookup(word, index) {
                 if (re.test(wordPrefixRemoved)) {
                     var potentialStem = wordPrefixRemoved.replace(re, '');
                     results = results.concat(simpleIndexLookup(potentialStem, index));
+                    const neoVowelsSubstitute = { 'è': 'e', 'e': 'è', 'í': 'i', 'i': 'í', 'á': 'a', 'a': 'á' };
+                    var lastVowelIndex = -1;
+                    for (var i = potentialStem.length - 1; i > potentialStem.length - 5; i--) {
+                        if (potentialStem[i] in neoVowelsSubstitute) {
+                            lastVowelIndex = i;
+                            break;
+                        }
+                    }
+                    if (lastVowelIndex != -1) {
+                        var altered = potentialStem;
+                        altered[lastVowelIndex] = neoVowelsSubstitute[altered[lastVowelIndex]];
+                        results = results.concat(simpleIndexLookup(altered, index));
+                    }
                 }
             }
         }
