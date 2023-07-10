@@ -46,9 +46,7 @@ function getStem(entry, strLanguageCode) {
 
 function getStemNEO(entry) {
     //var results = [];
-    if ((entry['cat. gram.'] == 'v. tr.' ||
-        entry['cat. gram.'] == 'v.tr.' ||
-        entry['cat. gram.'] == 'v.intr.') &&
+    if ((entry['cat. gram.'].indexOf('v.') != -1) &&
         entry['NEO.'].length > 3) {
         // remove -ere -are -ire
         const areRE = /are$/;
@@ -61,11 +59,21 @@ function getStemNEO(entry) {
             //results.push(entry['NEO.'].replace(ereRE, 'a'));
             // additional removal of é
             var stem = entry['NEO.'].replace(ereRE, '');
-            var lioe = stem.lastIndexOf('é');
-            if (lioe > stem.length - 5)
-                stem[lioe] = 'e';
+            const neoVowelsSubstitute = {'é': 'e', 'í': 'i', 'à': 'a', 'ú': 'u', 'ó': 'o' }; 
+            var lastVowelIndex = -1;
+            for (var i = stem.length - 1; i > stem.length - 5; i--) {
+                if (stem[i] in neoVowelsSubstitute) {
+                    lastVowelIndex = i;
+                    break;
+                }
+            }
+            if (lastVowelIndex != -1) {
+                stem = stem.split('');
+                stem[lastVowelIndex] = neoVowelsSubstitute[stem[lastVowelIndex]];
+                stem = stem.join('');
+            }
             return stem;
-        }   
+        }
         const ireRE = /ire$/;
         if (ireRE.test(entry['NEO.'])) {
             //results.push(entry['NEO.'].replace(ireRE, 'e'));
@@ -85,9 +93,19 @@ function getStemNEO(entry) {
             //results.push(entry['NEO.'].replace(ereRE, 'a'));
             // additional removal of é
             var stem = entry['NEO.'].replace(ereRE, '');
-            var lioe = stem.lastIndexOf('é');
-            if (lioe > stem.length - 5)
-                stem[lioe] = 'e';
+            const neoVowelsSubstitute = { 'é': 'e', 'í': 'i', 'à': 'a', 'ú': 'u', 'ó': 'o' };
+            var lastVowelIndex = -1;
+            for (var i = stem.length - 1; i > stem.length - 5; i--) {
+                if (stem[i] in neoVowelsSubstitute) {
+                    lastVowelIndex = i;
+                    break;
+                }
+            }
+            if (lastVowelIndex != -1) {
+                stem = stem.split('');
+                stem[lastVowelIndex] = neoVowelsSubstitute[stem[lastVowelIndex]];
+                stem = stem.join('');
+            }
             return stem;
         }   
         const ireRE = /ire-se$/;
@@ -118,10 +136,8 @@ function getStemNEO(entry) {
 
 function getStemCAS(entry) {
     // Spanish
-    if ((entry['cat. gram.'] == 'v. tr.' ||
-        entry['cat. gram.'] == 'v.tr.' ||
-        entry['cat. gram.'] == 'v.intr.') &&
-        entry['CAS.'].length > 3) {
+    if ((entry['cat. gram.'].indexOf('v.') != -1) &&
+        entry['NEO.'].length > 3) {
         // remove -er -ar -ir
         const areRE = /ar$/;
         if (areRE.test(entry['CAS.'])) {
@@ -234,7 +250,7 @@ function neoIndexLookup(word, index) {
                 if (re.test(wordPrefixRemoved)) {
                     var potentialStem = wordPrefixRemoved.replace(re, '');
                     results = results.concat(simpleIndexLookup(potentialStem, index));
-                    const neoVowelsSubstitute = { 'è': 'e', 'e': 'è', 'í': 'i', 'i': 'í', 'á': 'a', 'a': 'á' };
+                    const neoVowelsSubstitute = { 'è': 'e', 'e': 'è', 'í': 'i', 'i': 'í', 'à': 'a', 'a': 'à' };
                     var lastVowelIndex = -1;
                     for (var i = potentialStem.length - 1; i > potentialStem.length - 5; i--) {
                         if (potentialStem[i] in neoVowelsSubstitute) {
