@@ -148,7 +148,7 @@ button#search-button {
     color: var(--placeholder-color, #B5B5B5);
 }
 
-content {
+main {
     display: flex;
     padding: 8px 48px;
     justify-content: center;
